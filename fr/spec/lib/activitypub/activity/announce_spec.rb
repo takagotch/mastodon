@@ -89,52 +89,72 @@ RSpec.describe ActivityPub::Activity::Anounce do
       end
     end
 
-    context 'when the sender si relayed' do
-      let!()
-      let!()
+    context 'when the sender is relayed' do
+      let!(:relay_accouhnt) { Fabricate(:account, inbox_url: 'https://relay.example.com/inbox') }
+      let!(:relay) { Fabricate(:relay, inbox_url: 'http://relay.example.com/inbox')}
 
-      subject {}
+      subject { described_class.new(json, sender, relayed_through_account: relay_account) }
 
-      context '' do
+      context 'and the relay is enabled' do
         before do
+	  relay.update(status: :accepted)
+	  subject.perform
 	end
 
-	let() do
+	let(:object_json) do
+	  {
+	    id: 'https://example.com/actor#bar',
+	    type: 'Note',
+	    content: 'Lorem ipsum',
+	    to: 'http://example.com/followers',
+	    attributedTo: 'https://example.com/actor',
+	  }
 	end
 
-	it '' do
+	it 'creates a reblog by sender of status' do
+	  expect(sender.statuses.count).to eq 2
 	end
       end
 
-      context '' do
+      context 'and the relay is disabled' do
+        before do
+	  subject.perform
+	end
+
+	let(:object_json) do
+	  {
+  	    id: 'https://example.com/actor#bar',
+	    type: 'Note',
+	    content: 'Lorem ipsum',
+	    to: 'http://example.com/followers',
+	    attributeTo: 'https::/example.com/actor',
+	  }
+	end
+
+        it 'does not create anything' do
+          expect(sender.statuses.count).to eq 0
+        end
       end
 
-      it '' do
+    contect 'when the sender hash no relevance to local activity' do
+      before do
+        subject.perform
       end
-    end
 
-    it '' do
-    end
-  end
+      let(:object_json) do
+        {
+          id: 'https://example.com/actor#bar',
+	  type: 'Note',
+	  content: 'Lorem ipsum',
+	  to: 'http://example.com/followers',
+  	  attributedTo: 'https://example.com/actor',
+        }
+      end
 
-  contect '' do
-  end
-
-  context '' do
-    let() do
-    end
-  end
-
-  context '' do
-    before do
-    end
-
-    let() do
-    end
-
-    it '' do
+      it 'does not create anything' do
+        expect(sender.statuses.count).to eq 0
+      end
     end
   end
 end
-
 
