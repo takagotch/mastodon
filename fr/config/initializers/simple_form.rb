@@ -59,7 +59,20 @@ SimpleForm.setup do |config|
 
   config.button_class = 'error_notification'
 
-
+  # config.error_notification_id = nil
+  #
+  # config.collection_label_methods = [ :to_label, :name, :title, :to_s ]
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
 end
 
 
